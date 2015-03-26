@@ -18,7 +18,8 @@ var MapsLib = {
 
   //the encrypted Table ID of your Fusion Table (found under File => About)
   //NOTE: numeric IDs will be depricated soon
-  fusionTableId:      "1YTu1FnBovWboMdQHdWO7i3uc4tGknjtnNjU_FGM",
+  fusionTableId:      "13tzxAOqEws35npqimlOCpshEi2Wj77v7tBWBeT8",
+
 
   //*New Fusion Tables Requirement* API key. found at https://code.google.com/apis/console/
   //*Important* this key is for demonstration purposes. please register your own.
@@ -31,12 +32,12 @@ var MapsLib = {
 
   map_centroid:       new google.maps.LatLng(38.40625379485267, -98.2383671845704), //center that your map defaults to
   locationScope:      "",      		  //geographical area appended to all address searches
-  recordName:         "senator",       //for showing number of results
-  recordNamePlural:   "senators",
+  recordName:         "representative",       //for showing number of results
+  recordNamePlural:   "representatives",
 
   searchRadius:       5,            //in meters; orignal default 805 ~ 1/2 mile
   defaultZoom:        7,            //zoom level when map is loaded (bigger is more zoomed in)
-  orderBy:			  "Last_Name",	//order by field in database
+  //orderBy:			  "Last_Name",	//order by field in database
   addrMarkerImage: 'http://derekeder.com/images/icons/blue-pushpin.png',
   currentPinpoint: null,
 
@@ -89,14 +90,6 @@ var MapsLib = {
 	
 	
     //-----custom filters-------
-//var type_column = "'Party'";
-//var tempWhereClause = [];
-//if ( $("#cbType1").is(':checked')) tempWhereClause.push("Democrat");
-//if ( $("#cbType2").is(':checked')) tempWhereClause.push("Republican");
-//if ( $("#cbType3").is(':checked')) tempWhereClause.push("Male");
-//if ( $("#cbType4").is(':checked')) tempWhereClause.push("Female");
-//whereClause += " AND " + type_column + " IN ('" + tempWhereClause.join('\',\'') + "')";
-
 var type_column = "'Party'";
 var tempWhereClause = [];
 if ( $("#cbType1").is(':checked')) tempWhereClause.push("Democrat");
@@ -109,6 +102,8 @@ if ( $("#cbType3").is(':checked')) tempWhereClause.push("Male");
 if ( $("#cbType4").is(':checked')) tempWhereClause.push("Female");
 whereClause += " AND " + type_column + " IN ('" + tempWhereClause.join('\',\'') + "')";
 
+// This filter works if we have accurate data. Until then, disabled.
+/*
 var type_column = "'Race/Ethnicity'";
 var tempWhereClause = [];
 if ( $("#cbType5").is(':checked')) tempWhereClause.push("White");
@@ -116,17 +111,8 @@ if ( $("#cbType6").is(':checked')) tempWhereClause.push("Black");
 if ( $("#cbType7").is(':checked')) tempWhereClause.push("Hispanic");
 if ( $("#cbType8").is(':checked')) tempWhereClause.push("Asian/Pacific Islander");
 whereClause += " AND " + type_column + " IN ('" + tempWhereClause.join('\',\',\',\'') + "')";
-
-//my addition - testing
-//var order_column = "'Last_Name'";
-/*
-var tempOrderClause = [];
-if ( $("#order_by").prop('selectedIndex','LN_ASC')) tempOrderClause.push("Last_Name+ASC");
-if ( $("#order_by").prop('selectedIndex','LN_DESC')) tempOrderClause.push("Last_Name+DESC");
-if ( $("#order_by").prop('selectedIndex','DIST_ASC')) tempOrderClause.push("District+ASC");
-if ( $("#order_by").prop('selectedIndex','DIST_DESC')) tempOrderClause.push("District+DESC");
-orderColumn += tempOrderClause;
 */
+
     //-------end of custom filters--------
 
     if (address != "") {
@@ -240,19 +226,16 @@ orderColumn += tempOrderClause;
   },
 
   query: function(selectColumns, whereClause, callback, orderColumn) {
-    var queryStr = [];
+    
+	var orderColumn = $("#order_by option:selected").val();
+	var queryStr = [];
     queryStr.push("SELECT " + selectColumns);
     queryStr.push(" FROM " + MapsLib.fusionTableId);
     queryStr.push(" WHERE " + whereClause);
-
+    queryStr.push(" ORDER BY " + orderColumn);
     var sql = encodeURIComponent(queryStr.join(" "));	
 
-	var orderColumn = " Last_Name+ASC ";
-    var orderStr = [];
-	orderStr.push(" ORDER BY " + orderColumn);
-	var order = encodeURIComponent(orderStr.join(" "));
-
-    $.ajax({url: "https://www.googleapis.com/fusiontables/v1/query?sql="+sql+order+"&callback="+callback+"&key="+MapsLib.googleApiKey, dataType: "jsonp"});
+    $.ajax({url: "https://www.googleapis.com/fusiontables/v1/query?sql="+sql+"&callback="+callback+"&key="+MapsLib.googleApiKey, dataType: "jsonp"});
   },
 
 /* Example query
@@ -286,7 +269,7 @@ https://www.googleapis.com/fusiontables/v1/query?sql=SELECT+ROWID%2C+First_Name%
     if (numRows == 1)
     name = MapsLib.recordName;
     $( "#result_count" ).fadeOut(function() {
-        $( "#result_count" ).html(MapsLib.addCommas(numRows) + " " + name + " of 40 found");
+        $( "#result_count" ).html(MapsLib.addCommas(numRows) + " " + name + " of 125 found");
       });
     $( "#result_count" ).fadeIn();
   },
@@ -314,7 +297,7 @@ displayList: function(json) {
         <div class='row-fluid item-list'>\
           <div class='span12' style='border-bottom: 1px dashed #CCCCCC; padding: 8px 0;'>\
 		  	<img class='photo-tn' src='" + data[row][5] + "' />" + "\
-            <strong>" + "Senator: " + "</strong>" + data[row][0] + " " + data[row][1] + "\
+            <strong>" + "Representative: " + "</strong>" + data[row][0] + " " + data[row][1] + "\
             <br />\
             <strong>" + "District: " + "</strong>" + data[row][2] + "\
             <br />\

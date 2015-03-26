@@ -89,14 +89,6 @@ var MapsLib = {
 	
 	
     //-----custom filters-------
-//var type_column = "'Party'";
-//var tempWhereClause = [];
-//if ( $("#cbType1").is(':checked')) tempWhereClause.push("Democrat");
-//if ( $("#cbType2").is(':checked')) tempWhereClause.push("Republican");
-//if ( $("#cbType3").is(':checked')) tempWhereClause.push("Male");
-//if ( $("#cbType4").is(':checked')) tempWhereClause.push("Female");
-//whereClause += " AND " + type_column + " IN ('" + tempWhereClause.join('\',\'') + "')";
-
 var type_column = "'Party'";
 var tempWhereClause = [];
 if ( $("#cbType1").is(':checked')) tempWhereClause.push("Democrat");
@@ -109,6 +101,8 @@ if ( $("#cbType3").is(':checked')) tempWhereClause.push("Male");
 if ( $("#cbType4").is(':checked')) tempWhereClause.push("Female");
 whereClause += " AND " + type_column + " IN ('" + tempWhereClause.join('\',\'') + "')";
 
+// This filter works if we have accurate data. Until then, disabled.
+/*
 var type_column = "'Race/Ethnicity'";
 var tempWhereClause = [];
 if ( $("#cbType5").is(':checked')) tempWhereClause.push("White");
@@ -116,16 +110,6 @@ if ( $("#cbType6").is(':checked')) tempWhereClause.push("Black");
 if ( $("#cbType7").is(':checked')) tempWhereClause.push("Hispanic");
 if ( $("#cbType8").is(':checked')) tempWhereClause.push("Asian/Pacific Islander");
 whereClause += " AND " + type_column + " IN ('" + tempWhereClause.join('\',\',\',\'') + "')";
-
-//my addition - testing
-//var order_column = "'Last_Name'";
-/*
-var tempOrderClause = [];
-if ( $("#order_by").prop('selectedIndex','LN_ASC')) tempOrderClause.push("Last_Name+ASC");
-if ( $("#order_by").prop('selectedIndex','LN_DESC')) tempOrderClause.push("Last_Name+DESC");
-if ( $("#order_by").prop('selectedIndex','DIST_ASC')) tempOrderClause.push("District+ASC");
-if ( $("#order_by").prop('selectedIndex','DIST_DESC')) tempOrderClause.push("District+DESC");
-orderColumn += tempOrderClause;
 */
     //-------end of custom filters--------
 
@@ -240,19 +224,16 @@ orderColumn += tempOrderClause;
   },
 
   query: function(selectColumns, whereClause, callback, orderColumn) {
-    var queryStr = [];
+    
+	var orderColumn = $("#order_by option:selected").val();
+	var queryStr = [];
     queryStr.push("SELECT " + selectColumns);
     queryStr.push(" FROM " + MapsLib.fusionTableId);
     queryStr.push(" WHERE " + whereClause);
-
+    queryStr.push(" ORDER BY " + orderColumn);
     var sql = encodeURIComponent(queryStr.join(" "));	
 
-	var orderColumn = " Last_Name+ASC ";
-    var orderStr = [];
-	orderStr.push(" ORDER BY " + orderColumn);
-	var order = encodeURIComponent(orderStr.join(" "));
-
-    $.ajax({url: "https://www.googleapis.com/fusiontables/v1/query?sql="+sql+order+"&callback="+callback+"&key="+MapsLib.googleApiKey, dataType: "jsonp"});
+    $.ajax({url: "https://www.googleapis.com/fusiontables/v1/query?sql="+sql+"&callback="+callback+"&key="+MapsLib.googleApiKey, dataType: "jsonp"});
   },
 
 /* Example query
