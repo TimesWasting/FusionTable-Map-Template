@@ -18,33 +18,29 @@ var MapsLib = {
 
   //the encrypted Table ID of your Fusion Table (found under File => About)
   //NOTE: numeric IDs will be depricated soon
-  fusionTableId:      "1YTu1FnBovWboMdQHdWO7i3uc4tGknjtnNjU_FGM",
+  fusionTableId:      "1m4Ez9xyTGfY2CU6O-UgEcPzlS0rnzLU93e4Faa0",
 
   //*New Fusion Tables Requirement* API key. found at https://code.google.com/apis/console/
   //*Important* this key is for demonstration purposes. please register your own.
-  googleApiKey:       "AIzaSyBHnYpEqDQaRrMF_TNRvbTZhmPEKEsw_2E",
+  googleApiKey:       "AIzaSyA3FQFrNr5W2OEVmuENqhb2MBB2JabdaOY",
 
   //name of the location column in your Fusion Table.
   //NOTE: if your location column name has spaces in it, surround it with single quotes
   //example: locationColumn:     "'my location'",
   locationColumn:     "geometry",
 
-  map_centroid:       new google.maps.LatLng(38.40625379485267, -98.2383671845704), //center that your map defaults to
-  locationScope:      "",      		  //geographical area appended to all address searches
-  recordName:         "senator",       //for showing number of results
-  recordNamePlural:   "senators",
+  map_centroid:       new google.maps.LatLng(41.8781136, -87.66677856445312), //center that your map defaults to
+  locationScope:      "chicago",      //geographical area appended to all address searches
+  recordName:         "result",       //for showing number of results
+  recordNamePlural:   "results",
 
-  searchRadius:       5,            //in meters; orignal default 805 ~ 1/2 mile
-  defaultZoom:        7,            //zoom level when map is loaded (bigger is more zoomed in)
-  orderBy:			  "Last_Name",	//order by field in database
+  searchRadius:       805,            //in meters ~ 1/2 mile
+  defaultZoom:        11,             //zoom level when map is loaded (bigger is more zoomed in)
   addrMarkerImage: 'http://derekeder.com/images/icons/blue-pushpin.png',
   currentPinpoint: null,
 
   initialize: function() {
     $( "#result_count" ).html("");
-    $("#rbType1").attr("checked", "checked");
-    $("#results_list").hide();
-    $("#result_count").hide();
 
     geocoder = new google.maps.Geocoder();
     var myOptions = {
@@ -70,11 +66,8 @@ var MapsLib = {
     var loadRadius = MapsLib.convertToPlainString($.address.parameter('radius'));
     if (loadRadius != "") $("#search_radius").val(loadRadius);
     else $("#search_radius").val(MapsLib.searchRadius);
-    $(":checkbox").attr("checked", "checked"); 
-	//$("#order_by").val('LN_ASC');
-	$("#results_list").hide();
-    $("#result_count").hide(); 
-	
+    $(":checkbox").attr("checked", "checked");
+    $("#result_count").hide();
 
     //run the default search
     MapsLib.doSearch();
@@ -86,47 +79,9 @@ var MapsLib = {
     MapsLib.searchRadius = $("#search_radius").val();
 
     var whereClause = MapsLib.locationColumn + " not equal to ''";
-	
-	
+
     //-----custom filters-------
-//var type_column = "'Party'";
-//var tempWhereClause = [];
-//if ( $("#cbType1").is(':checked')) tempWhereClause.push("Democrat");
-//if ( $("#cbType2").is(':checked')) tempWhereClause.push("Republican");
-//if ( $("#cbType3").is(':checked')) tempWhereClause.push("Male");
-//if ( $("#cbType4").is(':checked')) tempWhereClause.push("Female");
-//whereClause += " AND " + type_column + " IN ('" + tempWhereClause.join('\',\'') + "')";
 
-var type_column = "'Party'";
-var tempWhereClause = [];
-if ( $("#cbType1").is(':checked')) tempWhereClause.push("Democrat");
-if ( $("#cbType2").is(':checked')) tempWhereClause.push("Republican");
-whereClause += " AND " + type_column + " IN ('" + tempWhereClause.join('\',\'') + "')";
-
-var type_column = "'Gender'";
-var tempWhereClause = [];
-if ( $("#cbType3").is(':checked')) tempWhereClause.push("Male");
-if ( $("#cbType4").is(':checked')) tempWhereClause.push("Female");
-whereClause += " AND " + type_column + " IN ('" + tempWhereClause.join('\',\'') + "')";
-
-var type_column = "'Race/Ethnicity'";
-var tempWhereClause = [];
-if ( $("#cbType5").is(':checked')) tempWhereClause.push("White");
-if ( $("#cbType6").is(':checked')) tempWhereClause.push("Black");
-if ( $("#cbType7").is(':checked')) tempWhereClause.push("Hispanic");
-if ( $("#cbType8").is(':checked')) tempWhereClause.push("Asian/Pacific Islander");
-whereClause += " AND " + type_column + " IN ('" + tempWhereClause.join('\',\',\',\'') + "')";
-
-//my addition - testing
-//var order_column = "'Last_Name'";
-/*
-var tempOrderClause = [];
-if ( $("#order_by").prop('selectedIndex','LN_ASC')) tempOrderClause.push("Last_Name+ASC");
-if ( $("#order_by").prop('selectedIndex','LN_DESC')) tempOrderClause.push("Last_Name+DESC");
-if ( $("#order_by").prop('selectedIndex','DIST_ASC')) tempOrderClause.push("District+ASC");
-if ( $("#order_by").prop('selectedIndex','DIST_DESC')) tempOrderClause.push("District+DESC");
-orderColumn += tempOrderClause;
-*/
     //-------end of custom filters--------
 
     if (address != "") {
@@ -182,7 +137,6 @@ orderColumn += tempOrderClause;
     });
     MapsLib.searchrecords.setMap(map);
     MapsLib.getCount(whereClause);
-	MapsLib.getList(whereClause);
   },
 
   clearSearch: function() {
@@ -239,25 +193,15 @@ orderColumn += tempOrderClause;
       MapsLib.searchRadiusCircle = new google.maps.Circle(circleOptions);
   },
 
-  query: function(selectColumns, whereClause, callback, orderColumn) {
+  query: function(selectColumns, whereClause, callback) {
     var queryStr = [];
     queryStr.push("SELECT " + selectColumns);
     queryStr.push(" FROM " + MapsLib.fusionTableId);
     queryStr.push(" WHERE " + whereClause);
 
-    var sql = encodeURIComponent(queryStr.join(" "));	
-
-	var orderColumn = " Last_Name+ASC ";
-    var orderStr = [];
-	orderStr.push(" ORDER BY " + orderColumn);
-	var order = encodeURIComponent(orderStr.join(" "));
-
-    $.ajax({url: "https://www.googleapis.com/fusiontables/v1/query?sql="+sql+order+"&callback="+callback+"&key="+MapsLib.googleApiKey, dataType: "jsonp"});
+    var sql = encodeURIComponent(queryStr.join(" "));
+    $.ajax({url: "https://www.googleapis.com/fusiontables/v1/query?sql="+sql+"&callback="+callback+"&key="+MapsLib.googleApiKey, dataType: "jsonp"});
   },
-
-/* Example query
-https://www.googleapis.com/fusiontables/v1/query?sql=SELECT+ROWID%2C+First_Name%2C+Last_Name%2C+District%2C+Party%2C+Gender%2C+Photo%2C+Phone%2C+Email%2C+Webpage+FROM+1YTu1FnBovWboMdQHdWO7i3uc4tGknjtnNjU_FGM+ORDER+BY+District+DESC&key=AIzaSyBHnYpEqDQaRrMF_TNRvbTZhmPEKEsw_2E
-*/
 
   handleError: function(json) {
     if (json["error"] != undefined) {
@@ -286,55 +230,10 @@ https://www.googleapis.com/fusiontables/v1/query?sql=SELECT+ROWID%2C+First_Name%
     if (numRows == 1)
     name = MapsLib.recordName;
     $( "#result_count" ).fadeOut(function() {
-        $( "#result_count" ).html(MapsLib.addCommas(numRows) + " " + name + " of 40 found");
+        $( "#result_count" ).html(MapsLib.addCommas(numRows) + " " + name + " found");
       });
     $( "#result_count" ).fadeIn();
   },
-
-getList: function(whereClause) {
-  var selectColumns = "First_Name, Last_Name, District, Party, Gender, Photo, Phone, Email, Webpage " ;
-  MapsLib.query(selectColumns, whereClause, "MapsLib.displayList");
-},
-
-displayList: function(json) {
-  MapsLib.handleError(json);
-  var data = json["rows"];
-  var template = "";
-
-  var results = $("#results_list");
-  results.hide().empty(); //hide the existing list and empty it out first
-
-  if (data == null) {
-    //clear results list
-    results.append("<li><span class='lead'>No results found</span></li>");
-  }
-  else {
-    for (var row in data) {
-      template = "\
-        <div class='row-fluid item-list'>\
-          <div class='span12' style='border-bottom: 1px dashed #CCCCCC; padding: 8px 0;'>\
-		  	<img class='photo-tn' src='" + data[row][5] + "' />" + "\
-            <strong>" + "Senator: " + "</strong>" + data[row][0] + " " + data[row][1] + "\
-            <br />\
-            <strong>" + "District: " + "</strong>" + data[row][2] + "\
-            <br />\
-            <strong>" + "Party: " + "</strong>" + data[row][3] + "\
-			<br />\
-            <strong>" + "Gender: " + "</strong>" + data[row][4] + "\
-			<br />\
-            <strong>" + "Phone: " + "</strong>" + data[row][6] + "\
-			<br />\
-            <strong>" + "Email: " + "</strong> <a href='mailto:" + data[row][7] + "'>Click Here</a>" + "\
-			<br />\
-            <strong>" + "Webpage: " + "</strong> <a href='" + data[row][8] + "'>Link</a>" + "\
-          <!-- <hr> -->\
-		  </div>\
-        </div>"
-      results.append(template);
-    }
-  }
-  results.fadeIn();
-},
 
   addCommas: function(nStr) {
     nStr += '';
@@ -357,5 +256,5 @@ displayList: function(json) {
   convertToPlainString: function(text) {
     if (text == undefined) return '';
   	return decodeURIComponent(text);
-  }  
+  }
 }
