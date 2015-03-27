@@ -299,17 +299,17 @@ displayList: function(json) {
 		  	<img class='photo-tn' src='" + data[row][5] + "' />" + "\
             <strong>" + "Representative: " + "</strong>" + data[row][0] + " " + data[row][1] + "\
             <br />\
-            <strong>" + "District: " + "</strong>" + data[row][2] + "\
+            <strong>District: </strong>" + data[row][1] + "\
             <br />\
-            <strong>" + "Party: " + "</strong>" + data[row][3] + "\
+            <strong>Party: </strong>" + data[row][3] + "\
 			<br />\
-            <strong>" + "Gender: " + "</strong>" + data[row][4] + "\
+            <strong>Gender: </strong>" + data[row][4] + "\
 			<br />\
-            <strong>" + "Phone: " + "</strong>" + data[row][6] + "\
+            <strong>Phone: </strong>" + data[row][6] + "\
 			<br />\
-            <strong>" + "Email: " + "</strong> <a href='mailto:" + data[row][7] + "'>Click Here</a>" + "\
+            <strong>Email: </strong><a href='mailto:" + data[row][7] + "'>Click Here</a>" + "\
 			<br />\
-            <strong>" + "Webpage: " + "</strong> <a href='" + data[row][8] + "'>Link</a>" + "\
+            <strong>Webpage: </strong><a href='" + data[row][8] + "'>Link</a>" + "\
           <!-- <hr> -->\
 		  </div>\
         </div>"

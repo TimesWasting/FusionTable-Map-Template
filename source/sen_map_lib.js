@@ -17,21 +17,19 @@ var MapsLib = {
   //Using the v1 Fusion Tables API. See https://developers.google.com/fusiontables/docs/v1/migration_guide for more info
 
   //the encrypted Table ID of your Fusion Table (found under File => About)
-  //NOTE: numeric IDs will be depricated soon
-  fusionTableId:      "1YTu1FnBovWboMdQHdWO7i3uc4tGknjtnNjU_FGM",
+        fusionTableId: "1YTu1FnBovWboMdQHdWO7i3uc4tGknjtnNjU_FGM",
 
   //*New Fusion Tables Requirement* API key. found at https://code.google.com/apis/console/
-  //*Important* this key is for demonstration purposes. please register your own.
-  googleApiKey:       "AIzaSyBHnYpEqDQaRrMF_TNRvbTZhmPEKEsw_2E",
+        googleApiKey:  "AIzaSyBHnYpEqDQaRrMF_TNRvbTZhmPEKEsw_2E",
 
   //name of the location column in your Fusion Table.
   //NOTE: if your location column name has spaces in it, surround it with single quotes
   //example: locationColumn:     "'my location'",
-  locationColumn:     "geometry",
+        locationColumn: "geometry",
 
   map_centroid:       new google.maps.LatLng(38.40625379485267, -98.2383671845704), //center that your map defaults to
-  locationScope:      "",      		  //geographical area appended to all address searches
-  recordName:         "senator",       //for showing number of results
+  locationScope:      "",           //geographical area appended to all address searches
+  recordName:         "senator",    //for showing number of results
   recordNamePlural:   "senators",
 
   searchRadius:       5,            //in meters; orignal default 805 ~ 1/2 mile
@@ -40,7 +38,7 @@ var MapsLib = {
   addrMarkerImage: 'http://derekeder.com/images/icons/blue-pushpin.png',
   currentPinpoint: null,
 
-  initialize: function() {
+  initialize: function () {
     $( "#result_count" ).html("");
     $("#rbType1").attr("checked", "checked");
     $("#results_list").hide();
@@ -233,7 +231,7 @@ whereClause += " AND " + type_column + " IN ('" + tempWhereClause.join('\',\',\'
     queryStr.push(" ORDER BY " + orderColumn);
     var sql = encodeURIComponent(queryStr.join(" "));	
 
-    $.ajax({url: "https://www.googleapis.com/fusiontables/v1/query?sql="+sql+"&callback="+callback+"&key="+MapsLib.googleApiKey, dataType: "jsonp"});
+    $.ajax({url: "https://www.googleapis.com/fusiontables/v2/query?sql="+sql+"&callback="+callback+"&key="+MapsLib.googleApiKey, dataType: "jsonp"});
   },
 
 /* Example query
